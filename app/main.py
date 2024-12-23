@@ -8,4 +8,4 @@ app.register_blueprint(statistics_blueprint, url_prefix="/api/statistics")
 
 
 if __name__ == "__main__":
-    app.run(port=5001)
+    app.run(port=5001, debug=True)
