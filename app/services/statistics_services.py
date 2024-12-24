@@ -1,5 +1,5 @@
 import pandas as pd
-from typing import List, Optional
+from typing import List
 
 from app.mongodb.database_mongo import terrorism_collection
 
@@ -162,7 +162,7 @@ def calculate_event_victim_correlation(region_filter=None):  # 10
         {
             'region': event['location']['region']['text'],
             'year': event['date']['year'],
-            'victims': calculate_victims(event),  # נניח שזו פונקציה שמחברת את הקורבנות
+            'victims': calculate_victims(event),
             'latitude': event['location']['latitude'],
             'longitude': event['location']['longitude']
         } for event in events
@@ -240,7 +240,6 @@ def identify_shared_attack_strategies(filter: str):#14
         }
     ))
 
-    # יצירת DataFrame
     df = pd.DataFrame([{
         'region': event['location']['region']['text'],
         'country': event['location']['country']['text'],
@@ -250,7 +249,6 @@ def identify_shared_attack_strategies(filter: str):#14
         'longitude': event['location'].get('longitude')
     } for event in events for group in event['groups'] if 'attack_type' in event])
 
-    # סינון קבוצות 'Unknown'
     df = df[df['group'] != 'Unknown']
 
     key_column = 'region' if filter == 'region' else 'country'
@@ -265,16 +263,13 @@ def identify_shared_attack_strategies(filter: str):#14
         .reset_index()
     )
 
-    # הוספת עמודת מספר הקבוצות
     grouped['group_count'] = grouped['group'].apply(len)
 
-    # מציאת סוג ההתקפה עם מספר הקבוצות הגדול ביותר לכל אזור
     max_attack_types = (
         grouped.loc[grouped.groupby(key_column)['group_count'].idxmax()]
         .reset_index(drop=True)
     )
 
-    # יצירת מבנה התוצאה
     result = [
         {
             key_column: row[key_column],
